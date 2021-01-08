@@ -9,25 +9,30 @@ import java.sql.SQLException;
 import springbook.user.domain.User;
 
 public class UserDao {
+	
+	private ConnectionMaker ConnectionMaker;
+	
+	public UserDao(ConnectionMaker connectionMaker) {
+		this.ConnectionMaker = connectionMaker;
+	}
+	
 	public void add(User user) throws ClassNotFoundException, SQLException {
-			Class.forName("com.mysql.cj.jdbc.Driver");
-			Connection c = DriverManager.getConnection("jdbc:mysql://localhost/spring_book?characterEncoding=UTF-8&serverTimezone=UTC", "spring_ex", "123456!");
+		Connection c = ConnectionMaker.makeConnection();
 			
-			PreparedStatement ps = c.prepareStatement(
-					"insert into users(id, name, password) values(?,?,?)");
-			ps.setString(1, user.getId());
-			ps.setString(2, user.getName());
-			ps.setNString(3,  user.getPassword());
+		PreparedStatement ps = c.prepareStatement(
+				"insert into users(id, name, password) values(?,?,?)");
+		ps.setString(1, user.getId());
+		ps.setString(2, user.getName());
+		ps.setNString(3,  user.getPassword());
 			
-			ps.executeUpdate();
+		ps.executeUpdate();
 			
-			ps.close();
-			c.close();
+		ps.close();
+		c.close();
 	}
 	
 	public User get(String id) throws ClassNotFoundException, SQLException {
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		Connection c = DriverManager.getConnection("jdbc:mysql://localhost/spring_book?characterEncoding=UTF-8&serverTimezone=UTC", "spring_ex", "123456!");
+		Connection c = ConnectionMaker.makeConnection();
 		
 		PreparedStatement ps = c.prepareStatement(
 				"select * from users where id = ?");
@@ -47,4 +52,16 @@ public class UserDao {
 		return user;
 		
 	}
+	
+	/* ---> 중복 코드의 메소드 추출
+	private Connection getConnection() throws ClassNotFoundException, SQLException {
+		Class.forName("com.mysql.cj.jdbc.Driver");
+		Connection c = DriverManager.getConnection(
+				"jdbc:mysql://localhost/spring_book?"
+				+ "characterEncoding=UTF-8&serverTimezone=UTC",
+				"spring_ex", "123456!");
+		return c;
+	}*/
+	
+	
 }
